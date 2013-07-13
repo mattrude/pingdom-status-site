@@ -1,39 +1,37 @@
 <?php
 
+$SITEID = "mattrude";
 $SITENAME = "Matt's Network Status Site";
 $USERPWD = "matt@mattrude.com:master12";
 $HTTPHEADER = "ldpz0jdrsx43jcyswlkn037vstg4ena3";
  
-// Init cURL
-$curl = curl_init();
-// Set target URL
-curl_setopt($curl, CURLOPT_URL, "https://api.pingdom.com/api/2.0/checks");
-// Set the desired HTTP method (GET is default, see the documentation for each request)
-curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
-// Set user (email) and password
-curl_setopt($curl, CURLOPT_USERPWD, $USERPWD);
-// Add a http header containing the application key (see the Authentication section of this document)
-curl_setopt($curl, CURLOPT_HTTPHEADER, array("App-Key: $HTTPHEADER"));
-// Ask cURL to return the result as a string
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
- 
-// Init cURL
-$rtime = curl_init();
-// Set target URL
-curl_setopt($rtime, CURLOPT_URL, "https://api.pingdom.com/api/2.0/servertime");
-// Set the desired HTTP method (GET is default, see the documentation for each request)
-curl_setopt($rtime, CURLOPT_CUSTOMREQUEST, "GET");
-// Set user (email) and password
-curl_setopt($rtime, CURLOPT_USERPWD, $USERPWD);
-// Add a http header containing the application key (see the Authentication section of this document)
-curl_setopt($rtime, CURLOPT_HTTPHEADER, array("App-Key: $HTTPHEADER"));
-// Ask cURL to return the result as a string
-curl_setopt($rtime, CURLOPT_RETURNTRANSFER, 1);
+$apc_response = apc_fetch("$SITEID-response");
+if ($apc_response === false) {
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, "https://api.pingdom.com/api/2.0/checks");
+    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "GET");
+    curl_setopt($curl, CURLOPT_USERPWD, $USERPWD);
+    curl_setopt($curl, CURLOPT_HTTPHEADER, array("App-Key: $HTTPHEADER"));
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $response = json_decode(curl_exec($curl),true);
+    apc_store("$SITEID-response", $response, 60);
+} else {
+    $response = $apc_response;
+} 
 
-
-// Execute the request and decode the json result into an associative array
-$response = json_decode(curl_exec($curl),true);
-$time = json_decode(curl_exec($rtime),true);
+$apc_time = apc_fetch("$SITEID-time");
+if ($apc_time === false) {
+    $rtime = curl_init();
+    curl_setopt($rtime, CURLOPT_URL, "https://api.pingdom.com/api/2.0/servertime");
+    curl_setopt($rtime, CURLOPT_CUSTOMREQUEST, "GET");
+    curl_setopt($rtime, CURLOPT_USERPWD, $USERPWD);
+    curl_setopt($rtime, CURLOPT_HTTPHEADER, array("App-Key: $HTTPHEADER"));
+    curl_setopt($rtime, CURLOPT_RETURNTRANSFER, 1);
+    $time = json_decode(curl_exec($rtime),true);
+    apc_store("$SITEID-time", $time, 60);
+} else {
+    $time = $apc_time;
+} 
  
 // Check for errors returned by the API
 if (isset($response['error'])) {
@@ -56,7 +54,7 @@ echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
         </div>
         <div id="section_curr_status">
             <div class="date floatright" id="psp_last_update">';
-                print date("M, j Y H:i:s e", $time['servertime']);echo '
+                print date("M, j Y H:i:s T", $time['servertime']);echo '
             </div>
             <h2>Current Performance and Availability Status</h2>
             <table width="100%" border="0" cellpadding="0" cellspacing="0" class="psp-table" id="table_curr_status">
@@ -72,12 +70,17 @@ echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
                     // Print the names and statuses of all checks in the list
                     foreach ($checksList as $check) {
                         print "<tr>";
-                        print "<td><img src=\"./images/" . $check['status'] . "-status.png\"></td>";
-                        print "<td>" . $check['name'] . "</td>";
+                        print "<td><img title=\"Last Checked: " . date("M, j Y H:i:s T", $check['lasttesttime']) . ", Checked Every: " . $check['resolution'] . " minute(s)\" src=\"./images/" . $check['status'] . "-status.png\"></td>";
+                        print "<td><span title=\"" . $check['hostname'] . "\">" . $check['name'] . "</span></td>";
                         print "<td>" . $check['status'] . "</td>";
-                        print "<td>" . $check['lastresponsetime'] . "ms</td>";
+                        if ($check['lastresponsetime'] >= 1000) {
+                            $lastresponsetime = $check['lastresponsetime'] / 1000;
+                            print "<td>" . $lastresponsetime . " s</td>";
+                        } else {
+                            print "<td>" . $check['lastresponsetime'] . " ms</td>";
+                        }
                         if (isset($check['lasterrortime'])) {
-                            print "<td>" . date("Y-m-d H:i:s", $check['lasterrortime']) . "</td>";
+                            print "<td><span title=\"" . date_diff(date($check['lasterrortime']), date($time['servertime'])) . "\">" . date("Y-m-d H:i:s", $check['lasterrortime']) . "</span></td>";
                         } else {
                             echo "<td></td>";
                         }
