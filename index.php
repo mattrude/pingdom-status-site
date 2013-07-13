@@ -50,7 +50,9 @@ echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <body>
     <div id="container">
         <div id="header">
-            <div id="head_left" class="wraptocenter"><div><h2>'$SITENAME'</h2></div></div>
+            <div id="head_left" class="wraptocenter"><div><h2>';
+            echo $SITENAME;
+            echo '</h2></div></div>
         </div>
         <div id="section_curr_status">
             <div class="date floatright" id="psp_last_update">';
