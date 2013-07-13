@@ -1,5 +1,6 @@
 <?php
 
+$SITENAME = "Matt's Network Status Site";
 $USERPWD = "matt@mattrude.com:master12";
 $HTTPHEADER = "ldpz0jdrsx43jcyswlkn037vstg4ena3";
  
@@ -48,6 +49,8 @@ echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 </head>
 <body>
     <div id="container">
+        <div id="header">
+            <h2>$SITENAME</h2>
         <div id="section_curr_status">
             <div class="date floatright" id="psp_last_update">';
                 print date("M, j Y H:i:s e", $time['servertime']);echo '
