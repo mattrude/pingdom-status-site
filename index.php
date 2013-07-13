@@ -50,16 +50,16 @@ echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
     <div id="container">
         <div id="section_curr_status">
             <div class="date floatright" id="psp_last_update">';
-                print gmdate("M, j Y H:i:s e", $time['servertime']);echo '
+                print date("M, j Y H:i:s e", $time['servertime']);echo '
             </div>
             <h2>Current Performance and Availability Status</h2>
             <table width="100%" border="0" cellpadding="0" cellspacing="0" class="psp-table" id="table_curr_status">
                 <tbody>
                     <tr>
                         <td width="28%" class="tablehead" colspan="2">Service / Website</td>
-                        <td width="34%" class="tablehead">Performance and Availability Status</td>
+                        <td width="24%" class="tablehead">Current Status</td>
                         <td width="23%" class="tablehead">Current Performance</td>
-                        <td width="15%" class="tablehead">Uptime Last 24h</td>
+                        <td width="25%" class="tablehead">Last Error</td>
                     </tr>';
                     // Fetch the list of checks from the response
                     $checksList = $response['checks'];
@@ -70,7 +70,11 @@ echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
                         print "<td>" . $check['name'] . "</td>";
                         print "<td>" . $check['status'] . "</td>";
                         print "<td>" . $check['lastresponsetime'] . "ms</td>";
-                        print "<td>" . gmdate("Y-m-d\TH:i:s\Z", $check['lasterrortime']) . "</tr>";
+                        if (isset($check['lasterrortime'])) {
+                            print "<td>" . date("Y-m-d H:i:s", $check['lasterrortime']) . "</td>";
+                        } else {
+                            echo "<td></td>";
+                        }
                         print "</td>";
                     }
                 echo '</tbody>
