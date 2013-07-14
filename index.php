@@ -38,7 +38,26 @@ if (isset($response['error'])) {
     print "Error: " . $response['error']['errormessage'] . "\n";
     exit;
 }
- 
+
+// Convert UNIX time to a human readable time format
+function humanTiming ($time){
+    $time = time() - $time; // to get the time since that moment
+    $tokens = array (
+        31536000 => 'year',
+        2592000 => 'month',
+        604800 => 'week',
+        86400 => 'day',
+        3600 => 'hour',
+        60 => 'minute',
+        1 => 'second'
+    );
+    foreach ($tokens as $unit => $text) {
+        if ($time < $unit) continue;
+        $numberOfUnits = floor($time / $unit);
+        return $numberOfUnits.' '.$text.(($numberOfUnits>1)?'s':'');
+    }
+}
+
 echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -80,7 +99,7 @@ echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
                             print "<td>" . $check['lastresponsetime'] . " ms</td>";
                         }
                         if (isset($check['lasterrortime'])) {
-                            print "<td><span title=\"" . date_diff(date($check['lasterrortime']), date($time['servertime'])) . "\">" . date("Y-m-d H:i:s", $check['lasterrortime']) . "</span></td>";
+                            print "<td><span title=\"" . humanTiming($check['lasterrortime']) . " ago\">" . date("Y-m-d H:i:s", $check['lasterrortime']) . "</span></td>";
                         } else {
                             echo "<td></td>";
                         }
