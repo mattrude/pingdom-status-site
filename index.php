@@ -90,7 +90,7 @@ echo '<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
                     foreach ($checksList as $check) {
                         print "<tr>";
                         print "<td><img title=\"Last Checked: " . date("M, j Y H:i:s T", $check['lasttesttime']) . ", Checked Every: " . $check['resolution'] . " minute(s)\" src=\"./images/" . $check['status'] . "-status.png\"></td>";
-                        print "<td><span title=\"" . $check['hostname'] . "\">" . $check['name'] . "</span></td>";
+                        print "<td><span title=\"Site URL: " . $check['hostname'] . "\">" . $check['name'] . "</span></td>";
                         print "<td>" . $check['status'] . "</td>";
                         if ($check['lastresponsetime'] >= 1000) {
                             $lastresponsetime = $check['lastresponsetime'] / 1000;
