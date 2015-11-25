@@ -2,8 +2,8 @@
 
 $SITEID = "mattrude";
 $SITENAME = "Matt's Network Status Site";
-$USERPWD = "matt@mattrude.com:master12";
-$HTTPHEADER = "ldpz0jdrsx43jcyswlkn037vstg4ena3";
+$USERPWD = "";
+$HTTPHEADER = "";
  
 $apc_response = apc_fetch("$SITEID-response");
 if ($apc_response === false) {
